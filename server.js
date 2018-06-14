@@ -30,9 +30,11 @@ app.get('/', (req, res) => {
     res.json({"message": "Welcome to Placement application. Add/Update/Delet Students easily. Register/Unregister company or Student from Company."});
 });
 
-// Require Notes routes
+// Require Student routes
 require('./app/routes/student.routes.js')(app);
 
+// Require Company routes
+require('./app/routes/company.routes.js')(app);
 
 // listen for requests
 app.listen(3000, () => {

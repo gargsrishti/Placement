@@ -1,5 +1,5 @@
 const Student = require('../models/student.model.js');
-// Create and Save a new Student
+// Create and Save a new Student data
 exports.create = (req, res) => {
 	// Validate request
     if(!req.body.name) {
@@ -26,7 +26,7 @@ exports.create = (req, res) => {
     });
 };
 
-// Retrieve and return all notes from the database.
+// Retrieve and return all student data from the database.
 exports.findAll = (req, res) => {
 	Student.find()
     .then(students => {
@@ -38,7 +38,7 @@ exports.findAll = (req, res) => {
     });
 };
 
-// Find a single note with a noteId
+// Find a single student with a studentId
 exports.findOne = (req, res) => {
 	Student.findById(req.params.studentId)
     .then(student => {
@@ -60,7 +60,7 @@ exports.findOne = (req, res) => {
     });
 };
 
-// Update a note identified by the noteId in the request
+// Update a student data identified by the studentId in the request
 exports.update = (req, res) => {
 	// Validate Request
     if(!req.body.name) {
@@ -69,7 +69,7 @@ exports.update = (req, res) => {
         });
     }
 
-    // Find note and update it with the request body
+    // Find student data and update it with the request body
     Student.findByIdAndUpdate(req.params.studentId, {
         name: req.body.name,
         department: req.body.department || "Computer Science",
@@ -95,7 +95,7 @@ exports.update = (req, res) => {
     });
 };
 
-// Delete a note with the specified noteId in the request
+// Delete a student data with the specified studentId in the request
 exports.delete = (req, res) => {
 	Student.findByIdAndRemove(req.params.studentId)
     .then(student => {
