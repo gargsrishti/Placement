@@ -1,3 +1,13 @@
+//Logging
+const winston = require('winston')
+const logger = winston.createLogger({
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({ filename: 'combined.log' })
+  ]
+});
+require('console-stamp')(logger, '[HH:MM:ss.l]');
+
 const express = require('express');
 const bodyParser = require('body-parser');
 
@@ -19,10 +29,18 @@ mongoose.Promise = global.Promise;
 // Connecting to the database
 mongoose.connect(dbConfig.url)
 .then(() => {
-    console.log("Successfully connected to the database");    
+    //console.log("Successfully connected to the database");
+	logger.log({
+		level: 'info',
+		message: 'Successfully connected to the database'
+	});
 }).catch(err => {
-    console.log('Could not connect to the database. Exiting now...');
-    process.exit();
+    //console.log('Could not connect to the database. Exiting now...');
+    logger.log({
+		level: 'error',
+		message: 'Successfully connected to the database'
+	});
+	process.exit();
 });
 
 // define a simple route

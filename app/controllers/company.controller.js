@@ -1,10 +1,23 @@
 const Company = require('../models/company.model.js');
 var validator = require('validator');
 
+const winston = require('winston')
+const logger = winston.createLogger({
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({ filename: 'combined.log' })
+  ]
+});
+require('console-stamp')(logger, '[HH:MM:ss.l]');
+
 // Create and Save a new Company
 exports.create = (req, res) => {
 	// Validate request
     if(validator.isEmpty(req.body.name)) {
+		logger.log({
+			level: 'error',
+			message: "Company name is Mandatory"
+		});
         return res.status(400).send({
             message: "Company name is Mandatory"
         });
@@ -21,6 +34,10 @@ exports.create = (req, res) => {
     .then(data => {
         res.send(data);
     }).catch(err => {
+		logger.log({
+			level: 'error',
+			message: err.message || "Some error occurred while creating the new company entry."
+		});
         res.status(500).send({
             message: err.message || "Some error occurred while creating the new company entry."
         });
@@ -33,6 +50,10 @@ exports.findAll = (req, res) => {
     .then(company => {
         res.send(company);
     }).catch(err => {
+		logger.log({
+			level: 'error',
+			message: err.message || "Some error occurred while retrieving company data."
+		});
         res.status(500).send({
             message: err.message || "Some error occurred while retrieving company data."
         });
@@ -44,6 +65,10 @@ exports.findOne = (req, res) => {
 	Company.findById(req.params.companyId)
     .then(company => {
         if(!company) {
+			logger.log({
+				level: 'error',
+				message: "Company not found with id " + req.params.companyId
+			});
             return res.status(404).send({
                 message: "Company not found with id " + req.params.companyId
             });            
@@ -51,10 +76,18 @@ exports.findOne = (req, res) => {
         res.send(company);
     }).catch(err => {
         if(err.kind === 'ObjectId') {
-            return res.status(404).send({
+            logger.log({
+				level: 'error',
+				message: "Company not found with id " + req.params.companyId
+			});
+			return res.status(404).send({
                 message: "Company not found with id " + req.params.companyId
             });                
         }
+		logger.log({
+			level: 'error',
+			message: "Error retrieving company with id " + req.params.companyId
+		});
         return res.status(500).send({
             message: "Error retrieving company with id " + req.params.companyId
         });
@@ -65,6 +98,10 @@ exports.findOne = (req, res) => {
 exports.update = (req, res) => {
 	// Validate Request
     if(!req.body.name) {
+		logger.log({
+			level: 'error',
+			message: "Company name can not be empty"
+		});
         return res.status(400).send({
             message: "Company name can not be empty"
         });
@@ -78,6 +115,10 @@ exports.update = (req, res) => {
     }, {new: true})
     .then(company => {
         if(!company) {
+			logger.log({
+				level: 'error',
+				message: "Company not found with id " + req.params.companyId
+			});
             return res.status(404).send({
                 message: "Company not found with id " + req.params.companyId
             });
@@ -85,10 +126,18 @@ exports.update = (req, res) => {
         res.send(company);
     }).catch(err => {
         if(err.kind === 'ObjectId') {
-            return res.status(404).send({
+            logger.log({
+				level: 'error',
+				message: "Company not found with id " + req.params.companyId
+			});
+			return res.status(404).send({
                 message: "Company not found with id " + req.params.companyId
             });                
         }
+		logger.log({
+			level: 'error',
+			message: "Error updating company with id " + req.params.companyId
+		});
         return res.status(500).send({
             message: "Error updating company with id " + req.params.companyId
         });
@@ -100,17 +149,33 @@ exports.delete = (req, res) => {
 	Company.findByIdAndRemove(req.params.companyId)
     .then(company => {
         if(!company) {
-            return res.status(404).send({
+            logger.log({
+				level: 'error',
+				message: "Company not found with id " + req.params.companyId
+			});
+			return res.status(404).send({
                 message: "Company not found with id " + req.params.companyId
             });
         }
+		logger.log({
+			level: 'info',
+			message: "Company data deleted successfully!"
+		});
         res.send({message: "Company data deleted successfully!"});
     }).catch(err => {
         if(err.kind === 'ObjectId' || err.name === 'NotFound') {
-            return res.status(404).send({
+            logger.log({
+				level: 'error',
+				message: "Company not found with id " + req.params.companyId
+			});
+			return res.status(404).send({
                 message: "Company not found with id " + req.params.companyId
             });                
         }
+		logger.log({
+			level: 'error',
+			message: "Could not delete company with id " + req.params.companyId
+		});
         return res.status(500).send({
             message: "Could not delete company with id " + req.params.companyId
         });

@@ -1,16 +1,34 @@
 const Student = require('../models/student.model.js');
 var validator = require('validator');
 
+const winston = require('winston')
+const logger = winston.createLogger({
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({ filename: 'combined.log' })
+  ]
+});
+require('console-stamp')(logger, '[HH:MM:ss.l]');
+
+
 // Create and Save a new Student data
 exports.create = (req, res) => {
 	// Validate request
-    if(validator.isEmpty(req.body.name) || !validator.isAlpha(req.body.name)) {
+    if(!req.body.name || !validator.isAlpha(req.body.name)) {
+		logger.log({
+			level: 'error',
+			message: 'Student name is Mandatory and must have characters only.'
+		});
         return res.status(400).send({
             message: "Student name is Mandatory and must have characters only."
         });
     }
 	
 	if(!validator.isEmail(req.body.emailid)) {
+		logger.log({
+			level: 'error',
+			message: 'Email address is invalid'
+		});
         return res.status(400).send({
             message: "Email address is invalid"
         });
@@ -32,6 +50,10 @@ exports.create = (req, res) => {
     .then(data => {
         res.send(data);
     }).catch(err => {
+		logger.log({
+			level: 'error',
+			message: err.message || "Some error occurred while creating the new student entry."
+		});
         res.status(500).send({
             message: err.message || "Some error occurred while creating the new student entry."
         });
@@ -44,6 +66,10 @@ exports.findAll = (req, res) => {
     .then(students => {
         res.send(students);
     }).catch(err => {
+		logger.log({
+			level: 'error',
+			message: err.message || "Some error occurred while creating the new student entry."
+		});
         res.status(500).send({
             message: err.message || "Some error occurred while retrieving students data."
         });
@@ -55,6 +81,10 @@ exports.findOne = (req, res) => {
 	Student.findById(req.params.studentId)
     .then(student => {
         if(!student) {
+			logger.log({
+				level: 'error',
+				message: "Student not found with id " + req.params.studentId
+			});
             return res.status(404).send({
                 message: "Student not found with id " + req.params.studentId
             });            
@@ -62,10 +92,18 @@ exports.findOne = (req, res) => {
         res.send(student);
     }).catch(err => {
         if(err.kind === 'ObjectId') {
+			logger.log({
+				level: 'error',
+				message: "Student not found with id " + req.params.studentId
+			});
             return res.status(404).send({
                 message: "Student not found with id " + req.params.studentId
             });                
         }
+		logger.log({
+			level: 'error',
+			message: "Error retrieving student with id " + req.params.studentId
+		});
         return res.status(500).send({
             message: "Error retrieving student with id " + req.params.studentId
         });
@@ -76,6 +114,10 @@ exports.findOne = (req, res) => {
 exports.update = (req, res) => {
 	// Validate Request
     if(!req.body.name) {
+		logger.log({
+			level: 'error',
+			message: "Student name can not be empty"
+		});
         return res.status(400).send({
             message: "Student name can not be empty"
         });
@@ -91,6 +133,10 @@ exports.update = (req, res) => {
     }, {new: true})
     .then(student => {
         if(!student) {
+			logger.log({
+				level: 'error',
+				message: "Student not found with id " + req.params.studentId
+			});
             return res.status(404).send({
                 message: "Student not found with id " + req.params.studentId
             });
@@ -98,10 +144,18 @@ exports.update = (req, res) => {
         res.send(student);
     }).catch(err => {
         if(err.kind === 'ObjectId') {
+			logger.log({
+				level: 'error',
+				message: "Student not found with id " + req.params.studentId
+			});
             return res.status(404).send({
                 message: "Student not found with id " + req.params.studentId
             });                
         }
+		logger.log({
+				level: 'error',
+				message: "Error updating student with id " + req.params.studentId
+		});
         return res.status(500).send({
             message: "Error updating student with id " + req.params.studentId
         });
@@ -113,17 +167,33 @@ exports.delete = (req, res) => {
 	Student.findByIdAndRemove(req.params.studentId)
     .then(student => {
         if(!student) {
+			logger.log({
+				level: 'error',
+				message: "Error updating student with id " + req.params.studentId
+			});
             return res.status(404).send({
                 message: "Student not found with id " + req.params.studentId
             });
         }
+		logger.log({
+				level: 'info',
+				message: "Student deleted successfully!"
+		});
         res.send({message: "Student deleted successfully!"});
     }).catch(err => {
         if(err.kind === 'ObjectId' || err.name === 'NotFound') {
+			logger.log({
+				level: 'error',
+				message: "Student not found with id " + req.params.studentId
+			});
             return res.status(404).send({
                 message: "Student not found with id " + req.params.studentId
             });                
         }
+		logger.log({
+				level: 'error',
+				message: "Could not delete student with id " + req.params.studentId
+			});
         return res.status(500).send({
             message: "Could not delete student with id " + req.params.studentId
         });
