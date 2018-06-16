@@ -1,11 +1,10 @@
 const mongoose = require('mongoose');
-const Student = require('/student.model.js');
+const Student = require('./student.model.js');
+const Company = require('./company.model.js');
 
 const register = mongoose.Schema({
-    studentId : ObjectId,
-	department : String,
-	rollno : Number,
-	cgpa : Number
+    studentId : {type: mongoose.Schema.Types.ObjectId, ref: 'Company'},
+	companyId : {type: mongoose.Schema.Types.ObjectId, ref: 'Company'},
 });
-
-module.exports = mongoose.model('Student', Students);
+register.index({studentId: 1, companyId: 1}, {unique: true});
+module.exports = mongoose.model('register', register);

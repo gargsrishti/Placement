@@ -45,7 +45,7 @@ mongoose.connect(dbConfig.url)
 
 // define a simple route
 app.get('/', (req, res) => {
-    res.json({"message": "Welcome to Placement application. Add/Update/Delet Students easily. Register/Unregister company or Student from Company."});
+    res.json({"message": "Welcome to Placement application. Add/Update/Delete Students easily. Register/Unregister company or Student from Company."});
 });
 
 // Require Student routes
@@ -53,6 +53,9 @@ require('./app/routes/student.routes.js')(app);
 
 // Require Company routes
 require('./app/routes/company.routes.js')(app);
+
+// Require Registration routes
+require('./app/routes/register.routes.js')(app);
 
 // listen for requests
 app.listen(3000, () => {

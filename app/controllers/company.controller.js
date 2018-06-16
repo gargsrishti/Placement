@@ -42,10 +42,18 @@ exports.create = (req, res) => {
             message: err.message || "Some error occurred while creating the new company entry."
         });
     });
+	logger.log({
+		level: 'info',
+		message: 'Company registered Successfully'
+	});
 };
 
 // Retrieve and return all company data from the database.
 exports.findAll = (req, res) => {
+	logger.log({
+		level: 'info',
+		message: 'Retrieving data for all companies'
+	});
 	Company.find()
     .then(company => {
         res.send(company);
@@ -62,6 +70,10 @@ exports.findAll = (req, res) => {
 
 // Find a single company with a companyId
 exports.findOne = (req, res) => {
+	logger.log({
+		level: 'info',
+		message: 'Retrieving company data with id' + req.params.companyId
+	});
 	Company.findById(req.params.companyId)
     .then(company => {
         if(!company) {
@@ -96,6 +108,10 @@ exports.findOne = (req, res) => {
 
 // Update a company identified by the companyId in the request
 exports.update = (req, res) => {
+	logger.log({
+		level: 'info',
+		message: 'Trying to update company data with id' + req.params.companyId
+	});
 	// Validate Request
     if(!req.body.name) {
 		logger.log({
