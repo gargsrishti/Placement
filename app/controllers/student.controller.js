@@ -164,6 +164,32 @@ exports.update = (req, res) => {
 		rollno = student.rollno;
 		cgpa = student.cgpa;
 		emailid = student.emailid;
+		Student.findByIdAndUpdate(req.params.studentId, {
+			name: req.body.name || name,
+			department: req.body.department || department,
+			rollno: req.body.rollno || rollno,
+			cgpa: req.body.cgpa || cgpa,
+		}, {new: true})
+		.then(student => {
+			res.send(student);
+		}).catch(err => {
+			if(err.kind === 'ObjectId') {
+				logger.log({
+					level: 'error',
+					message: "Student not found with id " + req.params.studentId
+				});
+				return res.status(404).send({
+					message: "Student not found with id " + req.params.studentId
+				});                
+			}
+			logger.log({
+					level: 'error',
+					message: "Error updating student with id " + req.params.studentId
+			});
+			return res.status(500).send({
+				message: "Error updating student with id " + req.params.studentId
+			});
+		});
 		
     }).catch(err => {
         if(err.kind === 'ObjectId') {
@@ -183,47 +209,7 @@ exports.update = (req, res) => {
             message: "Error retrieving student with id " + req.params.studentId
         });
     });
-	console.log(name);
-		console.log(department);
-		console.log(cgpa);
-		console.log(rollno);
-		console.log(emailid);
-    // Find student data and update it with the request body
-    Student.findByIdAndUpdate(req.params.studentId, {
-        name: req.body.name || name,
-        department: req.body.department || department,
-		rollno: req.body.rollno || rollno,
-		cgpa: req.body.cgpa || cgpa,
-    }, {new: true})
-    .then(student => {
-        if(!student) {
-			logger.log({
-				level: 'error',
-				message: "Student not found with id " + req.params.studentId
-			});
-            return res.status(404).send({
-                message: "Student not found with id " + req.params.studentId
-            });
-        }
-        res.send(student);
-    }).catch(err => {
-        if(err.kind === 'ObjectId') {
-			logger.log({
-				level: 'error',
-				message: "Student not found with id " + req.params.studentId
-			});
-            return res.status(404).send({
-                message: "Student not found with id " + req.params.studentId
-            });                
-        }
-		logger.log({
-				level: 'error',
-				message: "Error updating student with id " + req.params.studentId
-		});
-        return res.status(500).send({
-            message: "Error updating student with id " + req.params.studentId
-        });
-    });
+    
 };
 
 // Delete a student data with the specified studentId in the request
