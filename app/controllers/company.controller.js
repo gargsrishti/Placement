@@ -1,15 +1,17 @@
 const Company = require('../models/company.model.js');
+var validator = require('validator');
+
 // Create and Save a new Company
 exports.create = (req, res) => {
 	// Validate request
-    if(!req.body.name) {
+    if(validator.isEmpty(req.body.name)) {
         return res.status(400).send({
             message: "Company name is Mandatory"
         });
     }
 	
 	const company = new Company({
-        name: req.body.name, 
+        name: validator.trim(req.body.name), 
         salary: req.body.salary,
 		date: req.body.date
     });

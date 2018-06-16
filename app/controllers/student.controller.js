@@ -1,20 +1,32 @@
 const Student = require('../models/student.model.js');
+var validator = require('validator');
+
 // Create and Save a new Student data
 exports.create = (req, res) => {
 	// Validate request
-    if(!req.body.name) {
+    if(validator.isEmpty(req.body.name) || !validator.isAlpha(req.body.name)) {
         return res.status(400).send({
-            message: "Student name is Mandatory"
+            message: "Student name is Mandatory and must have characters only."
+        });
+    }
+	
+	if(!validator.isEmail(req.body.emailid)) {
+        return res.status(400).send({
+            message: "Email address is invalid"
         });
     }
 	
 	const student = new Student({
-        name: req.body.name, 
+        name: validator.trim(req.body.name), //removing extra characters (Sanitizer)
         department: req.body.department || "Computer Science",
 		rollno: req.body.rollno,
-		cgpa: req.body.cgpa
+		cgpa: req.body.cgpa,
+		emailid: validator.normalizeEmail(req.body.emailid) //sanitizer
     });
-
+	if (req.body.companyRegister)
+	{
+		student.companyRegister.push(req.body.companyRegister);
+	}
     // Save data in the database
     student.save()
     .then(data => {
@@ -74,7 +86,8 @@ exports.update = (req, res) => {
         name: req.body.name,
         department: req.body.department || "Computer Science",
 		rollno: req.body.rollno,
-		cgpa: req.body.cgpa
+		cgpa: req.body.cgpa,
+		$push: {companyRegister: req.body.companyRegister}
     }, {new: true})
     .then(student => {
         if(!student) {
